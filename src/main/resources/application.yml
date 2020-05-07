@@ -1,0 +1,14 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: emotion-generate-service
+  cloud:
+    consul:
+      discovery:
+        service-name: ${spring.application.name}
+      host: localhost
+      port: 8500
+grpc:
+  server:
+    port: 8082

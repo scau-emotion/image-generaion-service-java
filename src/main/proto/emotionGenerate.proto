@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package grpc;
+
+service EmotionService {
+    rpc GenerateEmotion (GenerateEmotionRequest) returns (GenerateEmotionResponse) {}
+}
+
+message GenerateEmotionRequest {
+    string template_image = 1;
+    string content = 2;
+}
+
+message GenerateEmotionResponse {
+    string image = 1;
+}

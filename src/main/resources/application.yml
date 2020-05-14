@@ -7,8 +7,23 @@ spring:
     consul:
       discovery:
         service-name: ${spring.application.name}
-      host: localhost
-      port: 8500
+      host: http://47.115.3.112
+      port: 32782
+  zipkin:
+    base-url: http://47.115.3.112:9411/
+    service:
+      name: ${spring.application.name}
+  sleuth:
+    sampler:
+      probability: 1.0
+    grpc:
+      enabled: true
+    web:
+      client:
+        enabled: true
 grpc:
   server:
     port: 8082
+logging:
+  level:
+    org.springframework.cloud.sleuth: trace

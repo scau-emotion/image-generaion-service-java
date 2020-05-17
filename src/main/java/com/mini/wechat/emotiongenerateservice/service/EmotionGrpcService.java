@@ -27,17 +27,23 @@ public class EmotionGrpcService extends EmotionServiceGrpc.EmotionServiceImplBas
     @Override
     public void generateEmotion(EmotionGenerate.GenerateEmotionRequest request,
                                 StreamObserver<EmotionGenerate.GenerateEmotionResponse> responseObserver) {
-        EmotionGenerate.GenerateEmotionResponse response = EmotionGenerate.GenerateEmotionResponse.newBuilder()
-                .setImage("hhhh.jpg")
-                .build();
         try {
-            generateWordImage("D://template.jpg", request.getContent());
+            String path = System.getProperty("user.dir") + "/template/";
+            String resPath = generateWordImage(path + request.getTemplateImage(), request.getContent());
+            EmotionGenerate.GenerateEmotionResponse response = EmotionGenerate.GenerateEmotionResponse.newBuilder()
+                    .setImage(resPath)
+                    .build();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         } catch (Exception e) {
             System.out.println("error");
             e.printStackTrace();
+            EmotionGenerate.GenerateEmotionResponse response = EmotionGenerate.GenerateEmotionResponse.newBuilder()
+                    .setImage("error-gene")
+                    .build();
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
         }
-        responseObserver.onNext(response);
-        responseObserver.onCompleted();
     }
 
     private String generateWordImage(String url, String content) throws Exception{
@@ -66,14 +72,13 @@ public class EmotionGrpcService extends EmotionServiceGrpc.EmotionServiceImplBas
         // 2. 画出文字
         drawWordImage(graphics2D, srcWidth, deHeight, strList, font);
         // 3. 输出图片
-        String path = "D:/" + new Date().getTime() + "-1.png";
-        ImageIO.write(wordImage, "png", new FileOutputStream(path));
+//        String path = "D:/" + new Date().getTime() + "-1.png";
+//        ImageIO.write(wordImage, "png", new FileOutputStream(path));
         // 4. 拼接图片
-        stitchImage(image1, wordImage, srcWidth, srcHeight, deHeight);
-        return "ok";
+        return stitchImage(image1, wordImage, srcWidth, srcHeight, deHeight);
     }
 
-    private void stitchImage(Image templateImage, BufferedImage wordImage, int srcWidth, int srcHeight,
+    private String stitchImage(Image templateImage, BufferedImage wordImage, int srcWidth, int srcHeight,
                              int deHeight) throws Exception {
         BufferedImage resImage = new BufferedImage(srcWidth, srcHeight + deHeight, BufferedImage.TYPE_INT_RGB);
         int[] imageArrayOne = new int[srcWidth * srcHeight];
@@ -82,8 +87,10 @@ public class EmotionGrpcService extends EmotionServiceGrpc.EmotionServiceImplBas
         imageArrayTwo = wordImage.getRGB(0,0, srcWidth, deHeight, imageArrayTwo, 0, srcWidth);
         resImage.setRGB(0, 0, srcWidth, srcHeight, imageArrayOne, 0, srcWidth);
         resImage.setRGB(0, srcHeight, srcWidth, deHeight, imageArrayTwo, 0, srcWidth);
-        String path = "D:/" + new Date().getTime() + "-2.png";
+        String imageName = new Date().getTime() + ".png";
+        String path = System.getProperty("user.dir") + "/upload/" + imageName;
         ImageIO.write(resImage, "png", new FileOutputStream(path));
+        return imageName;
     }
 
     private void drawWordImage(Graphics2D graphics2D, int srcWidth, int deHeight, List<String> strList,

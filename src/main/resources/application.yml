@@ -27,3 +27,4 @@ grpc:
 logging:
   level:
     org.springframework.cloud.sleuth: trace
+
